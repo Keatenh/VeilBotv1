@@ -23,7 +23,18 @@ page_soup = soup(page_html, "html.parser")
 
 # grab info we want
 pop_game = page_soup.findAll("span",{"class":"num"})
-time_game = page_soup.findAll("abbr",{"class":"timeago"})
+heading_app = page_soup.findAll("div",{"id":"app-heading"})
+
+
+
+#my_url2 = 'http://steamcommunity.com/id/INSERT STEAM ID HERE/games/'
+
+#uClient = uReq(my_url2)
+#page_html = uClient.read()
+#uClient.close()
+#page_soup = soup(page_html, "html.parser")
+
+#game_rows = page_soup.findAll("div",{"id":"games_list_rows"})
 
 Client = discord.Client()
 client = commands.Bot(command_prefix = "!")
@@ -94,15 +105,33 @@ async def on_message(message):
 		await client.send_message(message.channel, (stageTxt) +" "+ "is the MOST Billy Stage."+ " " + "<@%s>" % (userID))
 	if message.content.upper().startswith('!PLAYERS'):
 		userID = message.author.id
+		
 		population = pop_game[0].text.strip() #removes white space
 		popTxt = str(population)
 		playersNum = random.randint(0,len(Players))
 		playersTxt = str(Players[playersNum])
-		time = time_game[0].text.strip()
-		timeTxt = str(time)
-		await client.send_message(message.channel,"There are currently " +(popTxt) + " " + (playersTxt) + " " + "playing DBD. " + "<@%s>" % (userID))
-		#await client.send_message(message.channel,"There are " +(popTxt) + " " + (playersTxt) + " " + "playing DBD as of " + (timeTxt) + ". " + "<@%s>" % (userID))
-
+		
+		appHeader = heading_app[0]
+		time_game = appHeader.div.abbr["title"]
+		hour = int(time_game[11] + time_game[12])-6
+		txt12h = "AM"
+		if hour < 0:
+			hour += 24
+		if hour > 12:
+			hour -= 12
+			txt12h = "PM"
+		min = time_game[14] + time_game[15]
+		sec = time_game[17] + time_game[18]
+		timeTxt = str(hour) + ":" + min + ":" + sec + " " + txt12h
+		await client.send_message(message.channel,"There are " +(popTxt) + " " + (playersTxt) + " " + "playing DBD as of " + (timeTxt) + " CST. " + "<@%s>" % (userID))
+	#if message.content.upper().startswith('!HOURS'):
+	#	userID = message.author.id
+	#	
+	#	game_row = game_rows[0]
+	#	if game_row.div["id"] == "game_381210":
+	#		await client.send_message(message.channel, "<@%s> bing-BONG!" % (userID))
+		#game = container.div.div["id"]
+		
 		
 client.run("INSERT TOKEN HERE") #token from DC/devs/apps
 
