@@ -36,6 +36,16 @@ heading_app = page_soup.findAll("div",{"id":"app-heading"})
 
 #game_rows = page_soup.findAll("div",{"id":"games_list_rows"})
 
+my_url3 = 'https://www.timeanddate.com/countdown/halloween'
+
+uClient = uReq(my_url3)
+page_html = uClient.read()
+uClient.close()
+page_soup = soup(page_html, "html.parser")
+
+digits = page_soup.findAll("div",{"class":"csvg-digit"})
+dates = page_soup.findAll("div",{"class":"csvg-date"})
+
 Client = discord.Client()
 client = commands.Bot(command_prefix = "!")
 
@@ -72,6 +82,12 @@ Players = ["campers",
 "Entity Worshipers",
 "Dead Hard Users",
 "BBQ Users"] 
+
+Time_suffix = ["days",
+"hours",
+"minutes",
+"seconds"]
+
 @client.event
 async def on_ready():
 	print("Bot is ready!")
@@ -131,8 +147,21 @@ async def on_message(message):
 	#	if game_row.div["id"] == "game_381210":
 	#		await client.send_message(message.channel, "<@%s> bing-BONG!" % (userID))
 		#game = container.div.div["id"]
-		
-		
+	if message.content.upper().startswith('!HW'):
+		userID = message.author.id
+		HwTxt = " " #initialize
+		time_count = 0
+		for digit in digits:
+			hwTxt = digit.div.text
+			HwTxt = HwTxt + " " + hwTxt + " " + Time_suffix[time_count]
+			if time_count < 3:
+				HwTxt += ","
+			time_count += 1
+		date = dates[0]
+		zone = date.a["title"]
+		zoneTxt = zone[20:] #truncate beginning of string so that we just have location
+		await client.send_message(message.channel, (HwTxt) + " until Halloween in " + (zoneTxt) + "<@%s>" % (userID))
+			
 client.run("INSERT TOKEN HERE") #token from DC/devs/apps
 
 
