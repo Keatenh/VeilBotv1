@@ -96,7 +96,7 @@ async def on_ready():
 async def on_message(message):
 	if message.content.upper().startswith('!COMMANDS'):
 		userID = message.author.id
-		await client.send_message(message.channel, "try !wraith , !q , !mbs, !players")
+		await client.send_message(message.channel, "try !wraith , !q , !mbs, !players, !hw")
 	if message.content.upper().startswith('!WRAITH'):
 		userID = message.author.id
 		await client.send_message(message.channel, "<@%s> bing-BONG!" % (userID))
