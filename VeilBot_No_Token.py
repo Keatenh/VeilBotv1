@@ -95,12 +95,15 @@ async def on_ready():
 @client.event
 async def on_message(message):
 	if message.content.upper().startswith('!COMMANDS'):
+		#Diplays message letting the DC user know some commands they can type
 		userID = message.author.id
 		await client.send_message(message.channel, "try !wraith , !q , !mbs, !players, !hw")
 	if message.content.upper().startswith('!WRAITH'):
+		#Gives a joke response related to a game character
 		userID = message.author.id
 		await client.send_message(message.channel, "<@%s> bing-BONG!" % (userID))
 	if message.content.upper().startswith('!SAY'):
+		#Takes an input string from the user and displays it as a msg from the bot
 		args = message.content.split(" ")
 		#args[0] = !SAY
 		#args[1] = Hey
@@ -108,6 +111,7 @@ async def on_message(message):
 		#args[1:] = Hey There
 		await client.send_message(message.channel, "%s" % (" ".join(args[1:])))
 	if message.content.upper().startswith('!Q'): #& message.content.endswith('?'):
+		#crystal ball / coinflip response to any input flagged as a question
 		userID = message.author.id
 		toss = random.randint(0,1)
 		if toss == 0:
@@ -115,11 +119,13 @@ async def on_message(message):
 		else: #toss == 1
 			await client.send_message(message.channel, "<@%s> No..." % (userID))
 	if message.content.upper().startswith('!MBS'):
+		#picks a general response based on a random pick from a predefined list of words
 		userID = message.author.id
 		stageNum = random.randint(0,21)
 		stageTxt = str(Stage[stageNum])
 		await client.send_message(message.channel, (stageTxt) +" "+ "is the MOST Billy Stage."+ " " + "<@%s>" % (userID))
 	if message.content.upper().startswith('!PLAYERS'):
+		#scrapes the Steam webpage for info on how many users are playing DBD and displays last update time in CST
 		userID = message.author.id
 		
 		population = pop_game[0].text.strip() #removes white space
@@ -148,6 +154,7 @@ async def on_message(message):
 	#		await client.send_message(message.channel, "<@%s> bing-BONG!" % (userID))
 		#game = container.div.div["id"]
 	if message.content.upper().startswith('!HW'):
+		#Displays the current time until Halloween for the DC user's current global location
 		userID = message.author.id
 		HwTxt = " " #initialize
 		time_count = 0
