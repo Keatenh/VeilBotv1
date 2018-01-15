@@ -205,6 +205,7 @@ async def on_message(message):
 		await client.send_message(message.channel, (HwTxt) + " until Halloween in " + (zoneTxt) + "<@%s>" % (userID))
 		
 	if message.content.upper().startswith('!SHRINE'):
+		#Displays current unlockable perks in game for this week, and time remaining to purchase
 		userID = message.author.id
 		
 		page_soup = prepareSoup(my_url4)
