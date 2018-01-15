@@ -9,42 +9,21 @@ import random #random library
 from urllib.request import urlopen as uReq #grab the page itself
 from bs4 import BeautifulSoup as soup #parse html text
 
-my_url = 'http://steamcharts.com/app/381210#48h'
-
-# opening up connection, grabbing the page
-uClient = uReq(my_url)
-# off load content into a variable
-page_html = uClient.read()
-# close client
-uClient.close()
-
-# html parsing
-page_soup = soup(page_html, "html.parser")
-
-# grab info we want
-pop_game = page_soup.findAll("span",{"class":"num"})
-heading_app = page_soup.findAll("div",{"id":"app-heading"})
-
-
-
-#my_url2 = 'http://steamcommunity.com/id/INSERT STEAM ID HERE/games/'
-
-#uClient = uReq(my_url2)
-#page_html = uClient.read()
-#uClient.close()
-#page_soup = soup(page_html, "html.parser")
-
-#game_rows = page_soup.findAll("div",{"id":"games_list_rows"})
+my_url1 = 'http://steamcharts.com/app/381210#48h'
 
 my_url3 = 'https://www.timeanddate.com/countdown/halloween'
+my_url4 = 'https://deadbydaylight.gamepedia.com/Dead_by_Daylight_Wiki'
 
-uClient = uReq(my_url3)
-page_html = uClient.read()
-uClient.close()
-page_soup = soup(page_html, "html.parser")
-
-digits = page_soup.findAll("div",{"class":"csvg-digit"})
-dates = page_soup.findAll("div",{"class":"csvg-date"})
+def prepareSoup(url):
+	# opening up connection, grabbing the page
+	uClient = uReq(url)
+	# off load content into a variable
+	page_html = uClient.read()
+	# close client
+	uClient.close()
+	# html parsing
+	p_s = soup(page_html, "html.parser")
+	return p_s
 
 Client = discord.Client()
 client = commands.Bot(command_prefix = "!")
@@ -88,6 +67,31 @@ Time_suffix = ["days",
 "minutes",
 "seconds"]
 
+Characters = ["Dwight Fairfield",
+"Meg Thomas",
+"Claudette Morel",
+"Jake Park",
+"Nea Karlsson",
+'William "Bill" Overbeck',
+"David King",
+"Laurie Strode",
+"Ace Visconti",
+"Feng Min",
+"Quentin Smith",
+"Trapper",
+"Wraith",
+"Hillbilly",
+"Nurse",
+"Huntress",
+"Shape",
+"Hag",
+"Cannibal",
+"Doctor",
+"Nightmare"]
+
+Prices = ["550",
+"750"]
+
 @client.event
 async def on_ready():
 	print("Bot is ready!")
@@ -96,8 +100,8 @@ async def on_ready():
 async def on_message(message):
 	if message.content.upper().startswith('!COMMANDS'):
 		#Diplays message letting the DC user know some commands they can type
-		userID = message.author.id
-		await client.send_message(message.channel, "try !wraith , !q , !mbs, !players, !hw")
+		#userID = message.author.id
+		await client.send_message(message.channel, 'try !wraith , !q , !mbs, !players, !hw, !shrine, !hours steamid')
 	if message.content.upper().startswith('!WRAITH'):
 		#Gives a joke response related to a game character
 		userID = message.author.id
@@ -128,6 +132,11 @@ async def on_message(message):
 		#scrapes the Steam webpage for info on how many users are playing DBD and displays last update time in CST
 		userID = message.author.id
 		
+		page_soup = prepareSoup(my_url1)
+		# grab info we want
+		pop_game = page_soup.findAll("span",{"class":"num"})
+		heading_app = page_soup.findAll("div",{"id":"app-heading"})
+		
 		population = pop_game[0].text.strip() #removes white space
 		popTxt = str(population)
 		playersNum = random.randint(0,len(Players))
@@ -146,16 +155,42 @@ async def on_message(message):
 		sec = time_game[17] + time_game[18]
 		timeTxt = str(hour) + ":" + min + ":" + sec + " " + txt12h
 		await client.send_message(message.channel,"There are " +(popTxt) + " " + (playersTxt) + " " + "playing DBD as of " + (timeTxt) + " CST. " + "<@%s>" % (userID))
-	#if message.content.upper().startswith('!HOURS'):
-	#	userID = message.author.id
-	#	
-	#	game_row = game_rows[0]
-	#	if game_row.div["id"] == "game_381210":
-	#		await client.send_message(message.channel, "<@%s> bing-BONG!" % (userID))
-		#game = container.div.div["id"]
+	if message.content.upper().startswith('!HOURS'):
+		#gives feedback on the number of hours a steam user has logged in dbd based on steam profile
+		userID = message.author.id
+		#the user we are requesting info about
+		userQmsg = message.content.split(" ")
+		userQ = " ".join(userQmsg[1:])
+		my_url2 = 'http://steamcommunity.com/id/' + (userQ) + '/'
+		page_soup = prepareSoup(my_url2)
+		# grab info we want
+		game_rows = page_soup.findAll("div",{"class":"game_info"})
+		
+		game_name = " "
+		for game_row in game_rows:
+			game_names = game_row.findAll("div",{"class":"game_name"})
+			game_n = game_names[0]
+			game_name = game_n.text.strip()
+			if game_name == "Dead by Daylight":
+				game_details = game_row.findAll("div",{"class":"game_info_details"})
+				game_d = game_details[0]
+				game_detail = game_d.text.strip()
+		
+			
+		if game_name == " ":
+			game_detail = "Error: Not Found"
+		
+		await client.send_message(message.channel, (game_detail) + " " + "<@%s>" % (userID))
+		
 	if message.content.upper().startswith('!HW'):
 		#Displays the current time until Halloween for the DC user's current global location
 		userID = message.author.id
+		
+		page_soup = prepareSoup(my_url3)
+		# grab info we want
+		digits = page_soup.findAll("div",{"class":"csvg-digit"})
+		dates = page_soup.findAll("div",{"class":"csvg-date"})
+		
 		HwTxt = " " #initialize
 		time_count = 0
 		for digit in digits:
@@ -168,6 +203,24 @@ async def on_message(message):
 		zone = date.a["title"]
 		zoneTxt = zone[20:] #truncate beginning of string so that we just have location
 		await client.send_message(message.channel, (HwTxt) + " until Halloween in " + (zoneTxt) + "<@%s>" % (userID))
+		
+	if message.content.upper().startswith('!SHRINE'):
+		userID = message.author.id
+		
+		page_soup = prepareSoup(my_url4)
+		# grab info we want
+		tables = page_soup.findAll("table",{"class":"wikitable"})
+		
+		table = tables[0].text.strip()
+		table = " ".join(table.split())
+		table = table[30:] #cut out labels in string
+		for Character in Characters:
+			table = table.replace(Character,"-> " + Character + " |")
+		for Price in Prices:
+			table = table.replace(Price, Price + '\n')
+		#tableTxt = str(table)
+		await client.send_message(message.channel, (table) + "<@%s>" % (userID))
+		
 			
 client.run("INSERT TOKEN HERE") #token from DC/devs/apps
 
